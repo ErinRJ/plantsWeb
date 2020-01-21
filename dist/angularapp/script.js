@@ -10,6 +10,15 @@ $(document).ready(function(){
   span.onclick = function() {
     modal.style.display = "none";
   }
+
+  $.ajax({
+    url:'weather/',
+    type: 'GET',
+    dataType: 'json',
+    success: (data) => {
+      $("#water").text(data);
+    }
+  });
 });
 
 
