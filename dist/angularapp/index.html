@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>The Succulife</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <h1 id="banner">Livin the Succulife</h1>
+    <div class="content">
+      <div id="modalID" class="modal">
+        <div class="modal-content">
+          <span id="close">&times;</span>
+          <p>Plant:</p>
+          <select>
+            <option value = cactus>Cactus</option>
+            <option value = rose>Rose</option>
+            <option value = lily>Lily</option>
+            <option value = corn>Corn</option>
+          </select>
+          <button id="submit" onclick="submit()">Submit</button>
+        </div>
+      </div>
+      <div id="plantsBox">
+        <h2 id="plantsTitle">My Garden</h2>
+        <table>
+          <tr>
+            <td id="firstP">cactus</td>
+            <td id="firstI">info</td>
+            <td id="firstR"><button onclick="remove(1)">remove</button></td>
+          </tr>
+          <tr>
+            <td id="secondP">sage</td>
+            <td id="secondI">info</td>
+            <td id="secondR"><button onclick="remove(2)">remove</button></td>
+          </tr>
+          <tr>
+            <td id="thirdP">rose</td>
+            <td id="thirdI">info</td>
+            <td id="thirdR"><button onclick="remove(3)">remove</button></td>
+          </tr>
+          <tr>
+            <td id="fourthP">rose</td>
+            <td id="fourthI">info</td>
+            <td id="fourthR"><button onclick="remove(4)">remove</button></td>
+          </tr>
+          <tr>
+            <td id="fifthP"><button onclick="add(5)">Add new</button></td>
+            <td id="fifthI"></td>
+            <td id="fifthR"></td>
+          </tr>
+          <tr>
+            <td id="sixthP"><button onclick="add(6)">Add new</button></td>
+            <td id="sixthI"></td>
+            <td id="sixthR"></td>
+          </tr>
+        </table>
+      </div>
+      <div id="weatherBox">
+        <h1>water those plants girl </h1>
+      </div>
+    </div>
+
+  </body>
+</html>
