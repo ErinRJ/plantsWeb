@@ -33,6 +33,11 @@ function submit(){
   modal.style.display = "none";
 }
 
+//go through plants in database
+//find all those that "water" levels are less than the rain this week
+ 
+
+
 //add a new plant to the database
 function add(x){
   //pop up a modal box so user can enter information

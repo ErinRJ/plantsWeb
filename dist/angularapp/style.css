@@ -85,3 +85,10 @@ body{
   padding: 5px;
   display:inline-block;
 }
+
+#location {
+  background-color: white;
+  border-radius: 10px;
+  padding: 5px;
+  display:inline-block;
+}

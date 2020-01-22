@@ -47,7 +47,7 @@ app.get('/weather', (req, res) => {
   var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
 
   //get the weather data between the two dates
-  request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=Havana&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
+  request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=Dublin&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
     if (err) { return console.log(err); }
     //get the multiple days' weather from api
     weather = body.data.weather;
@@ -57,7 +57,9 @@ app.get('/weather', (req, res) => {
     var sum = 0;
     for (i=0; i<days; i++){
       var hours = weather[i].hourly.length;
+      console.log("-------DAY : " + i);
       for (hour=0; hour<hours; hour++){
+        console.log(weather[i].hourly[hour].precipMM);
         sum += parseFloat(weather[i].hourly[hour].precipMM);
       }
     }
