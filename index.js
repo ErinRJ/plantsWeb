@@ -29,7 +29,7 @@ app.get('/plants', (req, res) => {
   //connect to the database
   db.connect(function(error) {
     if (error){
-      throw error;
+      console.log(error);
     }
     else{
       //get all the plants available in the database

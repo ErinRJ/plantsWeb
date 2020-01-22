@@ -1,5 +1,6 @@
 var modal;
 var span = null;
+var availablePlants = [];
 
 $(document).ready(function(){
   //display the modal box
@@ -19,6 +20,20 @@ $(document).ready(function(){
       $("#water").text(data);
     }
   });
+  //get the plants that are listed in the database
+  $.ajax({
+    url:'plants/',
+    type: 'GET',
+    dataType: 'json',
+    success: (data) => {
+      //loop through the available plants
+      for(i=0; i<data.length; i++){
+        availablePlants.push(data[i].name);
+      }
+      console.log(availablePlants);
+    }
+  });
+
 });
 
 
@@ -35,7 +50,7 @@ function submit(){
 
 //go through plants in database
 //find all those that "water" levels are less than the rain this week
- 
+
 
 
 //add a new plant to the database
