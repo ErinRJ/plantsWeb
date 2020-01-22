@@ -1,28 +1,18 @@
 const express = require('express');
 const path = require('path');
 const request = require('request');
-// const mysql = require('mysql');
+const mysql = require('mysql');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// var connection = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: '',
-//   database: 'plantsApp'
-// });
-
-// connection.connect(function(error) {
-//   if (error){
-//     console.log("Error");
-//   }
-//   else{
-//     console.log("Connected");
-//   }
-// });
-
-//
+//connect to the database
+var db = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'plantsApp'
+});
 
 app.use(express.static("dist/angularapp"));
 
@@ -33,6 +23,24 @@ app.get('/', (req, res) => {
   }
   return res.sendFile('index.html', options);
 })
+
+//DISPLAY ALL OF THE PLANTS IN THE DATABASE
+app.get('/plants', (req, res) => {
+  //connect to the database
+  db.connect(function(error) {
+    if (error){
+      throw error;
+    }
+    else{
+      //get all the plants available in the database
+      var sql = 'SELECT * FROM plants;'
+      db.query(sql, function(err, result) {
+        //display the result
+        res.send(result);
+      });
+    }
+  });
+});
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
 app.get('/weather', (req, res) => {
