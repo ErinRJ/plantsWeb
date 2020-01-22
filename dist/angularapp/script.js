@@ -26,8 +26,15 @@ $(document).ready(function(){
     type: 'GET',
     dataType: 'json',
     success: (data) => {
+      //the dropdown list:
+      var drop = document.getElementById('list');
       //loop through the available plants
       for(i=0; i<data.length; i++){
+        var option = document.createElement("OPTION");
+        option.innerHTML = data[i].name;
+        option.value = data[i].id;
+        //add the plant to the dropdown list
+        drop.options.add(option);
         availablePlants.push(data[i].name);
       }
       console.log(availablePlants);
