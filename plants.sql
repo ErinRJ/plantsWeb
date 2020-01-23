@@ -45,3 +45,10 @@ CREATE TABLE garden
   FOREIGN KEY (plant) REFERENCES plants(id),
   FOREIGN KEY (user) REFERENCES user(id)
 );
+
+INSERT INTO garden
+(user, plant)
+VALUES (1, 1);
+
+DELETE FROM garden
+WHERE plant = <insert plant id here>;

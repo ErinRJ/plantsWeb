@@ -13,7 +13,7 @@ function startup(){
   span.onclick = function() {
     modal.style.display = "none";
   }
-
+//on first load, find the user's set location
   $.ajax({
     url:'user/',
     type: 'GET',
@@ -23,16 +23,50 @@ function startup(){
       $("#loc").text(area);
     }
   });
-
+//get and display the weather data for that region
   $.ajax({
     url:'weather/',
     type: 'GET',
     dataType: 'json',
     success: (data) => {
-      $("#water").text(data);
+      if(data>10){
+        $("#water").text("It's rained " + data + "mm this week, don't water those plants");
+      }
+      else{
+        $("#water").text("It's only rained " + data + "mm this week, water those plants");
+      }
     }
   });
 
+  $.ajax({
+    url:'garden/',
+    type: 'GET',
+    dataType:'json',
+    success: (data) => {
+      console.log(data);
+      var ul = document.getElementById('garden');
+      for (i=0; i<data.length;i++){
+        var li = document.createElement('li');
+        li.innerHTML = data[i].name;
+        var ul2 = document.createElement('ul');
+        li.appendChild(ul2);
+        var li2 = document.createElement('li');
+        var li3 = document.createElement('li');
+        var li4 = document.createElement('li');
+        li2.innerHTML = "Plant Season: " + data[i].plantTime;
+        li3.innerHTML = "Sunlight: " + data[i].sunlight;
+        li4.innerHTML = "Water Needed (mm): " + data[i].water;
+
+
+        ul.appendChild(li);
+        ul2.appendChild(li2);
+        ul2.appendChild(li3);
+        ul2.appendChild(li4);
+      }
+    }
+  })
+
+  //change the user's location
   $("#changeLoc").click(function(){
     var newLoc =$("#newloc").val();
     console.log("need to change the location to " + newLoc);
@@ -72,9 +106,12 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
-
+//close the modal once new plant is "added"
 function submit(){
   modal.style.display = "none";
+  var ddl = document.getElementById("list");
+  var selectedValue = ddl.options[ddl.selectedIndex].value;
+
 }
 //
 // function changeLoc(){

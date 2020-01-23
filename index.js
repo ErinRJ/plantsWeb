@@ -49,6 +49,30 @@ app.get('/user', (req, res) => {
   });
 });
 
+//DISPLAY ALL THE PLANTS IN THE GARDEN
+app.get('/garden', (req, res) => {
+  var plants="";
+  var jsonObject;
+  var sql = 'SELECT * FROM garden;'
+  db.query(sql, function(err, result) {
+    //loop through the plants and find their information
+    for(i=0;i<result.length;i++){
+      console.log(result[i].plant);
+      plants += "id=" + result[i].plant;
+      if(i != result.length-1){
+        plants += " OR ";
+      }
+    }
+    //collect all the different ids
+    var sql2 = 'SELECT * FROM plants WHERE ' + plants + ';'
+    db.query(sql2, function(err, result){
+      console.log(result);
+      jsonObject = JSON.stringify(result);
+      res.send(jsonObject)
+    });
+  });
+})
+//update the location of the user
 app.post("/updateLoc", urlencodedParser, function(req, res) {
   console.log(req.body.newloc);
   //update the information in the DATABASE
@@ -59,6 +83,18 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
   });
 });
 
+
+//add a plant to the garden
+app.post("/addPlant", urlencodedParser, function(req, res) {
+  console.log(req.body);
+  res.render("added plant", {data: req.body});
+  //update the information in the DATABASE
+  // var sql = 'SELECT * FROM plants WHERE id=' + req.body.plant_id;
+  // db.query(sql, function(err, result) {
+  //   //display the result
+  //   res.send("Location changed to " + req.body.newloc);
+  // });
+});
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
 app.get('/weather', (req, res) => {
