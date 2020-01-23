@@ -35,9 +35,13 @@ INSERT INTO user
 VALUES (null, "Erin", "havana");
 );
 
+UPDATE user
+SET location='Havana'
+WHERE id=1;
+
 CREATE TABLE garden
-(user int NOT NULL,
-  plant int NOT NULL,
+(user smallint unsigned NOT NULL,
+  plant smallint unsigned NOT NULL,
   FOREIGN KEY (plant) REFERENCES plants(id),
   FOREIGN KEY (user) REFERENCES user(id)
 );

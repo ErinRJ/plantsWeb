@@ -58,10 +58,13 @@
         <h1 id="water">water those plants girl </h1>
       </div>
       <div id="location">
-        <h3>Location: </h3>
-        <p id="loc"></p>
-        <input type="text" id="changeLoc"><br>
-        <button>Change Location</button>
+        <form id="location_form" method="POST" action="/updateLoc">
+          <h3>Location: </h3>
+          <p id="loc"></p>
+          <label for="newloc"> Change Location?</label>
+          <input type="text" name="newloc">
+          <input type="submit" value="submit"/>
+        </form>
       </div>
     </div>
 

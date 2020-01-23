@@ -32,6 +32,19 @@ function startup(){
       $("#water").text(data);
     }
   });
+
+  $("#changeLoc").click(function(){
+    var newLoc =$("#newloc").val();
+    console.log("need to change the location to " + newLoc);
+    $.post("/newLocation", {
+        location: $("#newloc").val()
+      },
+      function(data, status) {
+        console.log("Data: " + data + "\nStatus: " + status);
+      });
+  });
+
+
   //get the plants that are listed in the database
   $.ajax({
     url:'plants/',
@@ -50,7 +63,6 @@ function startup(){
       }
     }
   });
-
 };
 
 
@@ -64,11 +76,25 @@ window.onclick = function(event) {
 function submit(){
   modal.style.display = "none";
 }
-
-function changeLoc(){
-  var newLoc = document.getElementById("loc").value;
-  console.log("need to change the location to " + newLoc);
-}
+//
+// function changeLoc(){
+//   var newLoc = document.getElementById("newloc").value;
+//   console.log("need to change the location to " + newLoc);
+//   // $.ajax({
+//   //   url:'newLocation/',
+//   //   type: 'POST',
+//   //   data: newLoc,
+//   //   success: (data) => {
+//   //     $("#water").text(data);
+//   //   }
+//   // });
+//   $.post("/newLocation", {
+//       data: newLoc,
+//       success: function(response) {
+//           console.log(response);
+//       }
+//   });
+// }
 
 
 //go through plants in database
