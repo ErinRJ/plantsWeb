@@ -1,6 +1,7 @@
 var modal;
 var span = null;
 var area;
+var plants = [];
 
 function startup(){
   //display the modal box
@@ -21,6 +22,7 @@ function startup(){
       $("#loc").text(area);
     }
   });
+
 //get and display the weather data for that region
   $.ajax({
     url:'weather/',
@@ -42,10 +44,9 @@ function startup(){
     type: 'GET',
     dataType:'json',
     success: (data) => {
-      console.log(data);
       //find the list in the html file
       var ul = document.getElementById('garden');
-      
+
       //loop through the plants
       for (i=0; i<data.length;i++){
         //create a list heading for each plant type
@@ -75,7 +76,6 @@ function startup(){
   //change the user's location
   $("#changeLoc").click(function(){
     var newLoc =$("#newloc").val();
-    console.log("need to change the location to " + newLoc);
     $.post("/newLocation", {
         location: $("#newloc").val()
       },
@@ -84,27 +84,50 @@ function startup(){
       });
   });
 
-
-  //get the plants that are listed in the database
-  $.ajax({
-    url:'plants/',
-    type: 'GET',
-    dataType: 'json',
-    success: (data) => {
-      //the dropdown list:
-      var drop = document.getElementById('list');
-      //loop through the available plants
-      for(i=0; i<data.length; i++){
-        var option = document.createElement("OPTION");
-        option.innerHTML = data[i].name;
-        option.value = data[i].id;
-        //add the plant to the dropdown list
-        drop.options.add(option);
+  //add new plant to the DATABASE
+  $("#add").click(function(){
+    modal.style.display = "block";
+    //get the plants that are listed in the database
+    $.ajax({
+      url:'plants/',
+      type: 'GET',
+      dataType: 'json',
+      success: (data) => {
+        //the dropdown list:
+        var drop = document.getElementById('list');
+        //loop through the available plants
+        for(i=0; i<data.length; i++){
+          var option = document.createElement("OPTION");
+          // plants.push(data[i]);
+          option.innerHTML = data[i].name;
+          option.value = data[i].id;
+          //add the plant to the dropdown list
+          drop.options.add(option);
+        }
+        // console.log(plants);
       }
-    }
+    });
   });
 };
 
+function addPlant(){
+  var e = document.getElementById("list");
+	var result = e.options[e.selectedIndex].value;
+  console.log(result);
+  $.post("addPlant/",
+  {
+    data: result
+  },
+function(data, status){
+  alert("data: "+ data);
+});
+  // axios.post("/addPlant", {
+  //   data: result
+  // })
+  // .then (function (response) {
+  //   console.log(response);
+  // })
+};
 
 //also close the window if the user clicks outside the box
 window.onclick = function(event) {
@@ -118,11 +141,4 @@ function submit(){
   var ddl = document.getElementById("list");
   var selectedValue = ddl.options[ddl.selectedIndex].value;
 
-}
-
-//add a new plant to the database
-function add(x){
-  //pop up a modal box so user can enter information
-  modal.style.display = "block";
-  //check which plant has been added
 }

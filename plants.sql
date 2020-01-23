@@ -33,7 +33,7 @@ CREATE TABLE user
 INSERT INTO user
 (id, name, location)
 VALUES (null, "Erin", "havana");
-);
+
 
 UPDATE user
 SET location='Havana'

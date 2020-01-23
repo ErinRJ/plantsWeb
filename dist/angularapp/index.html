@@ -14,10 +14,10 @@
         <div class="modal-content">
           <span id="close">&times;</span>
           <p>Plant:</p>
-          <form action="/addPlant" method="POST">
+          <form>
             <select id="list">
             </select>
-            <input type="submit"/>
+            <input type="submit" onclick="addPlant()"/>
           </form>
         </div>
       </div>
@@ -25,6 +25,7 @@
         <h3>The Garden</h3>
         <ul id="garden">
         </ul>
+        <button id="add">Add New Plant</button>
       </div>
       <div id="weatherBox">
         <h1 id="water">water those plants girl </h1>

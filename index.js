@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const request = require('request');
 const mysql = require('mysql');
+const axios = require('axios');
 var bodyParser = require('body-parser');
 
 
@@ -18,6 +19,8 @@ var db = mysql.createConnection({
 });
 
 app.use(express.static("dist/angularapp"));
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -87,14 +90,14 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
 
 //add a plant to the garden
 app.post("/addPlant", urlencodedParser, function(req, res) {
-  console.log(req.body);
-  res.render("added plant", {data: req.body});
+  console.log("===================REEEEEEEQ: " + req.body);
   //update the information in the DATABASE
   // var sql = 'SELECT * FROM plants WHERE id=' + req.body.plant_id;
   // db.query(sql, function(err, result) {
   //   //display the result
   //   res.send("Location changed to " + req.body.newloc);
   // });
+  res.send("yi");
 });
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
