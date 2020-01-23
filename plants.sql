@@ -30,6 +30,11 @@ CREATE TABLE user
   PRIMARY KEY (id)
 );
 
+INSERT INTO user
+(id, name, location)
+VALUES (null, "Erin", "havana");
+);
+
 CREATE TABLE garden
 (user int NOT NULL,
   plant int NOT NULL,

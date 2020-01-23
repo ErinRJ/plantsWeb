@@ -1,8 +1,10 @@
 var modal;
 var span = null;
-var availablePlants = [];
+var area;
 
-$(document).ready(function(){
+
+
+function startup(){
   //display the modal box
   modal = document.getElementById("modalID");
   // var span = document.getElementsByClassName("close")[0];
@@ -11,6 +13,16 @@ $(document).ready(function(){
   span.onclick = function() {
     modal.style.display = "none";
   }
+
+  $.ajax({
+    url:'user/',
+    type: 'GET',
+    dataType: 'json',
+    success: (data) => {
+      area = data[0].location;
+      $("#loc").text(area);
+    }
+  });
 
   $.ajax({
     url:'weather/',
@@ -35,13 +47,11 @@ $(document).ready(function(){
         option.value = data[i].id;
         //add the plant to the dropdown list
         drop.options.add(option);
-        availablePlants.push(data[i].name);
       }
-      console.log(availablePlants);
     }
   });
 
-});
+};
 
 
 //also close the window if the user clicks outside the box
@@ -54,6 +64,12 @@ window.onclick = function(event) {
 function submit(){
   modal.style.display = "none";
 }
+
+function changeLoc(){
+  var newLoc = document.getElementById("loc").value;
+  console.log("need to change the location to " + newLoc);
+}
+
 
 //go through plants in database
 //find all those that "water" levels are less than the rain this week

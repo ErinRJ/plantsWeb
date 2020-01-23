@@ -27,18 +27,36 @@ app.get('/', (req, res) => {
 //DISPLAY ALL OF THE PLANTS IN THE DATABASE
 app.get('/plants', (req, res) => {
   //connect to the database
-  db.connect(function(error) {
-    if (error){
-      console.log(error);
-    }
-    else{
+  // db.connect(function(error) {
+  //   if (error){
+  //     console.log(error);
+  //   }
+  //   else{
       //get all the plants available in the database
       var sql = 'SELECT * FROM plants;'
       db.query(sql, function(err, result) {
         //display the result
         res.send(result);
-      });
-    }
+    //   });
+    // }
+  });
+});
+
+//DISPLAY USER INFORMATION
+app.get('/user', (req, res) => {
+  //connect to the database
+  // db.connect(function(error) {
+  //   if (error){
+  //     console.log(error);
+  //   }
+    // else{
+      //get all the plants available in the database
+      var sql = 'SELECT * FROM user;'
+      db.query(sql, function(err, result) {
+        //display the result
+        res.send(result);
+      // });
+    // }
   });
 });
 
