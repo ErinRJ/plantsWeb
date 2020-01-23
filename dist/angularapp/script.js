@@ -36,25 +36,33 @@ function startup(){
     }
   });
 
+//displays all plants currently in the GARDEN
   $.ajax({
     url:'garden/',
     type: 'GET',
     dataType:'json',
     success: (data) => {
       console.log(data);
+      //find the list in the html file
       var ul = document.getElementById('garden');
+      
+      //loop through the plants
       for (i=0; i<data.length;i++){
+        //create a list heading for each plant type
         var li = document.createElement('li');
         li.innerHTML = data[i].name;
+
+        //create sublists for the plant details
         var ul2 = document.createElement('ul');
         li.appendChild(ul2);
+
         var li2 = document.createElement('li');
         var li3 = document.createElement('li');
         var li4 = document.createElement('li');
+
         li2.innerHTML = "Plant Season: " + data[i].plantTime;
         li3.innerHTML = "Sunlight: " + data[i].sunlight;
         li4.innerHTML = "Water Needed (mm): " + data[i].water;
-
 
         ul.appendChild(li);
         ul2.appendChild(li2);

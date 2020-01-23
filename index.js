@@ -13,7 +13,8 @@ var db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'root',
-  database: 'plantsApp'
+  database: 'plantsApp',
+  port: 3306
 });
 
 app.use(express.static("dist/angularapp"));
