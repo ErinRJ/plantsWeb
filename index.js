@@ -18,6 +18,28 @@ var db = mysql.createConnection({
   port: 3306
 });
 
+const accountSid = 'ACe9f6714e786c1e39dfed4170a001e1fa';
+const authToken = '7a4e61ffbd1df8649d5ebab6f921691f';
+const client = require('twilio')(accountSid, authToken);
+
+client.messages
+  .create({
+     body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
+     from: '+12029316022',
+     to: '+12896858297'
+   })
+  .then(message => console.log(message.sid));
+
+
+// var config ={
+//   apiKey: "AIzaSyBLUAK-EV7LgZNE27YIhe8V9O6vuK8G2T0",
+//   authDomain: "plantsapp-54cec.firebaseapp.com",
+//   databaseURL: "https://plantsapp-54cec.firebaseio.com"
+// }
+// firebase.initializeApp(config);
+// var db = firebase.database().ref();
+//
+
 app.use(express.static("dist/angularapp"));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -80,10 +102,13 @@ app.get('/garden', (req, res) => {
 app.post("/updateLoc", urlencodedParser, function(req, res) {
   console.log(req.body.newloc);
   //update the information in the DATABASE
-  var sql = 'UPDATE user SET location=' + JSON.stringify(req.body.newloc) + 'WHERE id=1;'
-  db.query(sql, function(err, result) {
-    //display the result
-    res.send("Location changed to " + req.body.newloc);
+  // var sql = 'UPDATE user SET location=' + JSON.stringify(req.body.newloc) + 'WHERE id=1;'
+  // db.query(sql, function(err, result) {
+  //   //display the result
+  //   res.send("Location changed to " + req.body.newloc);
+  // });
+  db.ref('location/' + 1).set({
+    location: JSON.stringify(req.body.newloc)
   });
 });
 
