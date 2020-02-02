@@ -2,43 +2,44 @@ const express = require('express');
 const path = require('path');
 const request = require('request');
 const mysql = require('mysql');
-const axios = require('axios');
 var bodyParser = require('body-parser');
+const firebase = require('firebase');
 
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 //connect to the database
-var db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'plantsApp',
-  port: 3306
+// var db = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: 'root',
+//   database: 'plantsApp',
+//   port: 3306
+// });
+
+//set up Twilio for SMS notifications
+// const accountSid = 'ACe9f6714e786c1e39dfed4170a001e1fa';
+// const authToken = '7a4e61ffbd1df8649d5ebab6f921691f';
+// const client = require('twilio')(accountSid, authToken);
+// //send SMS notification
+// client.messages
+//   .create({
+//      body: 'testestest',
+//      from: '+12029316022',
+//      to: '+12896858297'
+//    })
+//   .then(message => console.log(message.sid));
+
+//set up Cloud Firestore database
+firebase.initializeApp({
+  apiKey: "AIzaSyBLUAK-EV7LgZNE27YIhe8V9O6vuK8G2T0",
+  authDomain: "plantsapp-54cec.firebaseapp.com",
+  databaseURL: "https://plantsapp-54cec.firebaseio.com",
+  projectId: "plantsapp-54cec"
 });
+var db = firebase.firestore();
 
-const accountSid = 'ACe9f6714e786c1e39dfed4170a001e1fa';
-const authToken = '7a4e61ffbd1df8649d5ebab6f921691f';
-const client = require('twilio')(accountSid, authToken);
-
-client.messages
-  .create({
-     body: 'This is the ship that made the Kessel Run in fourteen parsecs?',
-     from: '+12029316022',
-     to: '+12896858297'
-   })
-  .then(message => console.log(message.sid));
-
-
-// var config ={
-//   apiKey: "AIzaSyBLUAK-EV7LgZNE27YIhe8V9O6vuK8G2T0",
-//   authDomain: "plantsapp-54cec.firebaseapp.com",
-//   databaseURL: "https://plantsapp-54cec.firebaseio.com"
-// }
-// firebase.initializeApp(config);
-// var db = firebase.database().ref();
-//
 
 app.use(express.static("dist/angularapp"));
 app.engine('html', require('ejs').renderFile);
@@ -57,12 +58,22 @@ app.get('/', (req, res) => {
 
 //DISPLAY ALL OF THE PLANTS IN THE DATABASE
 app.get('/plants', (req, res) => {
-      //get all the plants available in the database
-  var sql = 'SELECT * FROM plants;'
-  db.query(sql, function(err, result) {
-    //display the result
-    res.send(result);
+  //get all the plants available in the database
+  const plants = [];
+  db.collection('plants').get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      //add each plant in the collection to the array
+      plants.push(doc.data());
+    });
+    //return the array
+    res.send(plants);
   });
+
+  // var sql = 'SELECT * FROM plants;'
+  // db.query(sql, function(err, result) {
+  //   //display the result
+  //   res.send(result);
+  // });
 });
 
 //DISPLAY USER INFORMATION
@@ -107,9 +118,9 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
   //   //display the result
   //   res.send("Location changed to " + req.body.newloc);
   // });
-  db.ref('location/' + 1).set({
-    location: JSON.stringify(req.body.newloc)
-  });
+  // db.ref('location/' + 1).set({
+  //   location: JSON.stringify(req.body.newloc)
+  // });
 });
 
 

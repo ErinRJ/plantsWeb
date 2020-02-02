@@ -100,7 +100,7 @@ function startup(){
           var option = document.createElement("OPTION");
           // plants.push(data[i]);
           option.innerHTML = data[i].name;
-          option.value = data[i].id;
+          option.value = data[i].name;
           //add the plant to the dropdown list
           drop.options.add(option);
         }
