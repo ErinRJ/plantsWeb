@@ -111,13 +111,15 @@ app.get('/garden', function(req, res) {
   db.collection('garden').where('user', '==', 'Erin').get().then((querySnapshot) => {
     //find the number of plants belonging to this user
     var size =  querySnapshot.size;
-    console.log("querysnapshot size: " + size);
     querySnapshot.forEach((doc) => {
       //find the plant information for that plant
       db.collection('plants').where('name', '==', doc.data().plant).get().then((querySnapshot) => {
+
+        //add each plant information to a continuous array
         querySnapshot.forEach((doc2) => {
-          console.log(`${doc2.data().name} : ${doc2.data().sun}`);
           plantDetails.push(doc2.data());
+
+          //once all plants have been added to the array, send the information to /garden
           if(plantDetails.length == size){
             //send the information to the page
             res.send(plantDetails);
@@ -183,46 +185,62 @@ app.post("/addPlant", urlencodedParser, function(req, res) {
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
 app.get('/weather', (req, res) => {
-  //new location:
-  var userLoc;
-  //find the user's current Location
-  var sql = "SELECT location FROM user WHERE name = 'Erin';"
-  db.query(sql, function (err, result) {
-    userLoc = JSON.stringify(result[0].location);
+
+  //find the user's current location
+  db.collection('user').where('name', '==', 'Erin').get().then((querySnapshot) => {
+    querySnapshot.forEach(doc => {
+      //the user's location
+      var userLoc = doc.data().location;
+
+      //find the weather
+      var weather;
+      //get today's date & format it
+      var today = new Date();
+      var newmonth = today.getMonth() + 1;
+
+      //format today's date
+      var date = today.getFullYear() + '-' + newmonth + '-' + today.getDate();
+      //get last week's date & format it
+      today.setDate(today.getDate() - 7);
+
+      //format last week's date
+      var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
+
+      //get the weather data between the two dates
+      request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + userLoc + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
+
+        if (err) { return console.log(err); }
+
+        //get the multiple days' weather from api
+        weather = body.data.weather;
+        //find the number of days covered
+        var days = weather.length;
+
+        //loop through the precipitations for the week, add to a total sum
+        var sum = 0;
+        for (i=0; i<days; i++){
+          var hours = weather[i].hourly.length;
+          //loop through each documented hour, add to sum
+          for (hour=0; hour<hours; hour++){
+            sum += parseFloat(weather[i].hourly[hour].precipMM);
+          }
+        }
+
+        //send the weather to /weather extension
+        console.log("total precipitation throughout the last week: " + sum);
+        sum = sum.toFixed(2)
+        res.send(sum.toString());
+      });
+    })
+  });
+  // //new location:
+  // var userLoc;
+  // //find the user's current Location
+  // var sql = "SELECT location FROM user WHERE name = 'Erin';"
+  // db.query(sql, function (err, result) {
+  //   userLoc = JSON.stringify(result[0].location);
     //for one day:
     //'http://api.worldweatheronline.com/premium/v1/weather.ashx?key=7450f73ec6fe449385e171524201901&q=Havana&format=json&num_of_days=1'
-    var weather;
-    //get today's date & format it
-    var today = new Date();
-    var date = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
-    //get last week's date & format it
-    today.setDate(today.getDate() - 7);
-    var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
-
-    //get the weather data between the two dates
-    request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + userLoc + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
-      if (err) { return console.log(err); }
-      //get the multiple days' weather from api
-      weather = body.data.weather;
-      //find the number of days covered
-      var days = weather.length;
-      //loop through the precipitations for the week, add to a total sum
-      var sum = 0;
-      for (i=0; i<days; i++){
-        var hours = weather[i].hourly.length;
-        console.log("-------DAY : " + i);
-        for (hour=0; hour<hours; hour++){
-          console.log(weather[i].hourly[hour].precipMM);
-          sum += parseFloat(weather[i].hourly[hour].precipMM);
-        }
-      }
-      //send the weather to /weather extension
-      console.log("total precipitation throughout the last week: " + sum);
-      sum = sum.toFixed(2)
-      res.send(sum.toString());
-    });
-  });
-
-})
+});
 
 app.listen(port, () => console.log("Listening"));
