@@ -40,7 +40,7 @@ firebase.initializeApp({
 });
 var db = firebase.firestore();
 
-
+//create the express app
 app.use(express.static("dist/angularapp"));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 
 //DISPLAY ALL OF THE PLANTS IN THE DATABASE
 app.get('/plants', (req, res) => {
-  //get all the plants available in the database
+  //get all the plants available in the firestore database
   const plants = [];
   db.collection('plants').get().then((querySnapshot) => {
     querySnapshot.forEach((doc) => {
@@ -76,42 +76,87 @@ app.get('/plants', (req, res) => {
   // });
 });
 
-//DISPLAY USER INFORMATION
+//DISPLAY THE USER INFORMATION
 app.get('/user', (req, res) => {
-  //get all the plants available in the database
-  var sql = 'SELECT * FROM user;'
-  db.query(sql, function(err, result) {
-    //display the result
-    res.send(result);
+  //get all user's information
+  const users = [];
+  db.collection('user').get().then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      //add each plant in the collection to the array
+      users.push(doc.data());
+    });
+    //return the array
+    res.send(users);
   });
+
+  // var sql = 'SELECT * FROM user;'
+  // db.query(sql, function(err, result) {
+  //   //display the result
+  //   res.send(result);
+  // });
 });
 
+
+
 //DISPLAY ALL THE PLANTS IN THE GARDEN
-app.get('/garden', (req, res) => {
-  var plants="";
-  var jsonObject;
-  var sql = 'SELECT * FROM garden;'
-  db.query(sql, function(err, result) {
-    //loop through the plants and find their information
-    for(i=0;i<result.length;i++){
-      console.log(result[i].plant);
-      plants += "id=" + result[i].plant;
-      if(i != result.length-1){
-        plants += " OR ";
-      }
-    }
-    //collect all the different ids
-    var sql2 = 'SELECT * FROM plants WHERE ' + plants + ';'
-    db.query(sql2, function(err, result){
-      console.log(result);
-      jsonObject = JSON.stringify(result);
-      res.send(jsonObject)
-    });
-  });
-})
-//update the location of the user
+app.get('/garden', function(req, res) {
+  // var plants="";
+  // var jsonObject;
+  // var sql = 'SELECT * FROM garden;'
+
+  //clear the plants in the plantDetails array
+  var plantDetails = [];
+
+  //look through all plants which belong to the current user
+  db.collection('garden').where('user', '==', 'Erin').get().then((querySnapshot) => {
+    //find the number of plants belonging to this user
+    var size =  querySnapshot.size;
+    console.log("querysnapshot size: " + size);
+    querySnapshot.forEach((doc) => {
+      //find the plant information for that plant
+      db.collection('plants').where('name', '==', doc.data().plant).get().then((querySnapshot) => {
+        querySnapshot.forEach((doc2) => {
+          console.log(`${doc2.data().name} : ${doc2.data().sun}`);
+          plantDetails.push(doc2.data());
+          if(plantDetails.length == size){
+            //send the information to the page
+            res.send(plantDetails);
+          }
+        });
+      });
+    })
+  })
+
+  // db.query(sql, function(err, result) {
+  //   //loop through the plants and find their information
+  //   for(i=0;i<result.length;i++){
+  //     console.log(result[i].plant);
+  //     plants += "id=" + result[i].plant;
+  //     if(i != result.length-1){
+  //       plants += " OR ";
+  //     }
+  //   }
+  //   //collect all the different ids
+  //   var sql2 = 'SELECT * FROM plants WHERE ' + plants + ';'
+  //   db.query(sql2, function(err, result){
+  //     console.log(result);
+  //     jsonObject = JSON.stringify(result);
+  //     res.send(jsonObject)
+  //   });
+  // });
+});
+
+
+//UPDATE THE USER'S LOCATION
 app.post("/updateLoc", urlencodedParser, function(req, res) {
   console.log(req.body.newloc);
+
+  var docRef = db.collection('user').doc('43fLnN5E2VukfSpuapsX');
+  var updateLoc = docRef.update({
+    location: req.body.newloc
+  });
+  console.log(updateLoc);
+  res.send("Location changed to " + req.body.newloc);
   //update the information in the DATABASE
   // var sql = 'UPDATE user SET location=' + JSON.stringify(req.body.newloc) + 'WHERE id=1;'
   // db.query(sql, function(err, result) {
@@ -138,9 +183,10 @@ app.post("/addPlant", urlencodedParser, function(req, res) {
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
 app.get('/weather', (req, res) => {
-  //find the user's Location
-  var sql = "SELECT location FROM user WHERE name = 'Erin';"
+  //new location:
   var userLoc;
+  //find the user's current Location
+  var sql = "SELECT location FROM user WHERE name = 'Erin';"
   db.query(sql, function (err, result) {
     userLoc = JSON.stringify(result[0].location);
     //for one day:
@@ -153,7 +199,6 @@ app.get('/weather', (req, res) => {
     today.setDate(today.getDate() - 7);
     var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
 
-    var toronto = "toronto"
     //get the weather data between the two dates
     request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + userLoc + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
       if (err) { return console.log(err); }

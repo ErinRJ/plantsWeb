@@ -61,8 +61,8 @@ function startup(){
         var li3 = document.createElement('li');
         var li4 = document.createElement('li');
 
-        li2.innerHTML = "Plant Season: " + data[i].plantTime;
-        li3.innerHTML = "Sunlight: " + data[i].sunlight;
+        li2.innerHTML = "Plant Season: " + data[i].season;
+        li3.innerHTML = "Sunlight: " + data[i].sun;
         li4.innerHTML = "Water Needed (mm): " + data[i].water;
 
         ul.appendChild(li);
@@ -104,7 +104,6 @@ function startup(){
           //add the plant to the dropdown list
           drop.options.add(option);
         }
-        // console.log(plants);
       }
     });
   });
