@@ -87,7 +87,7 @@ function startup(){
   //add new plant to the DATABASE
   $("#add").click(function(){
     modal.style.display = "block";
-    //get the plants that are listed in the database
+    //display all plants in the database
     $.ajax({
       url:'plants/',
       type: 'GET',
@@ -99,6 +99,7 @@ function startup(){
         for(i=0; i<data.length; i++){
           var option = document.createElement("OPTION");
           // plants.push(data[i]);
+          option.setAttribute("name", data[i].name);
           option.innerHTML = data[i].name;
           option.value = data[i].name;
           //add the plant to the dropdown list

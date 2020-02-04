@@ -7,6 +7,7 @@ const firebase = require('firebase');
 
 
 const app = express();
+var router = express.Router();
 const port = process.env.PORT || 3000;
 
 //connect to the database
@@ -46,7 +47,7 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
+app.use(express.urlencoded({extended:false}));
 
 //DISPLAY THE INDEX.HTML FILE AS THE HOMEPAGE
 app.get('/', (req, res) => {
@@ -55,6 +56,8 @@ app.get('/', (req, res) => {
   }
   return res.sendFile('index.html', options);
 })
+
+
 
 //DISPLAY ALL OF THE PLANTS IN THE DATABASE
 app.get('/plants', (req, res) => {
@@ -75,6 +78,8 @@ app.get('/plants', (req, res) => {
   //   res.send(result);
   // });
 });
+
+
 
 //DISPLAY THE USER INFORMATION
 app.get('/user', (req, res) => {
@@ -100,6 +105,7 @@ app.get('/user', (req, res) => {
 
 //DISPLAY ALL THE PLANTS IN THE GARDEN
 app.get('/garden', function(req, res) {
+
   // var plants="";
   // var jsonObject;
   // var sql = 'SELECT * FROM garden;'
@@ -129,6 +135,7 @@ app.get('/garden', function(req, res) {
     })
   })
 
+
   // db.query(sql, function(err, result) {
   //   //loop through the plants and find their information
   //   for(i=0;i<result.length;i++){
@@ -151,14 +158,15 @@ app.get('/garden', function(req, res) {
 
 //UPDATE THE USER'S LOCATION
 app.post("/updateLoc", urlencodedParser, function(req, res) {
-  console.log(req.body.newloc);
 
   var docRef = db.collection('user').doc('43fLnN5E2VukfSpuapsX');
   var updateLoc = docRef.update({
     location: req.body.newloc
   });
-  console.log(updateLoc);
-  res.send("Location changed to " + req.body.newloc);
+  res.redirect("/");
+
+
+
   //update the information in the DATABASE
   // var sql = 'UPDATE user SET location=' + JSON.stringify(req.body.newloc) + 'WHERE id=1;'
   // db.query(sql, function(err, result) {
@@ -172,16 +180,26 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
 
 
 //add a plant to the garden
-app.post("/addPlant", urlencodedParser, function(req, res) {
-  console.log("===================REEEEEEEQ: " + req.body);
-  //update the information in the DATABASE
-  // var sql = 'SELECT * FROM plants WHERE id=' + req.body.plant_id;
-  // db.query(sql, function(err, result) {
-  //   //display the result
-  //   res.send("Location changed to " + req.body.newloc);
-  // });
-  res.send("yi");
+app.post('/addPlant', function(req, res, next) {
+  var name = req.body.data;
+  console.log(req.body.data);
+
+  //add received plant to firestore
+
+  res.redirect('/');
 });
+
+
+// app.post("/addPlant", urlencodedParser, function(req, res) {
+//   console.log("===================REEEEEEEQ: " + req.body);
+//   //update the information in the DATABASE
+//   // var sql = 'SELECT * FROM plants WHERE id=' + req.body.plant_id;
+//   // db.query(sql, function(err, result) {
+//   //   //display the result
+//   //   res.send("Location changed to " + req.body.newloc);
+//   // });
+//   res.send("yi");
+// });
 
 //DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
 app.get('/weather', (req, res) => {
@@ -233,6 +251,9 @@ app.get('/weather', (req, res) => {
       });
     })
   });
+
+
+
   // //new location:
   // var userLoc;
   // //find the user's current Location
@@ -243,4 +264,5 @@ app.get('/weather', (req, res) => {
     //'http://api.worldweatheronline.com/premium/v1/weather.ashx?key=7450f73ec6fe449385e171524201901&q=Havana&format=json&num_of_days=1'
 });
 
+module.exports = router;
 app.listen(port, () => console.log("Listening"));
