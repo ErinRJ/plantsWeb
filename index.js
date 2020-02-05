@@ -4,20 +4,12 @@ const request = require('request');
 const mysql = require('mysql');
 var bodyParser = require('body-parser');
 const firebase = require('firebase');
+var schedule = require('node-schedule');
 
 
 const app = express();
 var router = express.Router();
 const port = process.env.PORT || 3000;
-
-//connect to the database
-// var db = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: 'root',
-//   database: 'plantsApp',
-//   port: 3306
-// });
 
 //set up Twilio for SMS notifications
 // const accountSid = 'ACe9f6714e786c1e39dfed4170a001e1fa';
@@ -49,7 +41,7 @@ var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(express.urlencoded({extended:false}));
 
-//DISPLAY THE INDEX.HTML FILE AS THE HOMEPAGE
+//display index.html as the homepage
 app.get('/', (req, res) => {
   var options = {
     root: path.join(__dirname, 'dist/angularapp')
@@ -58,8 +50,7 @@ app.get('/', (req, res) => {
 })
 
 
-
-//DISPLAY ALL OF THE PLANTS IN THE DATABASE
+//gather all of the available plants from the database, to be used in dropdown list
 app.get('/plants', (req, res) => {
   //get all the plants available in the firestore database
   const plants = [];
@@ -71,17 +62,20 @@ app.get('/plants', (req, res) => {
     //return the array
     res.send(plants);
   });
-
-  // var sql = 'SELECT * FROM plants;'
-  // db.query(sql, function(err, result) {
-  //   //display the result
-  //   res.send(result);
-  // });
 });
 
 
+//schedule reminders for the user to water if necessary
+var rule = new schedule.RecurrenceRule();
+rule.minute = 25;
+rule.hour = 0;
+var j = schedule.scheduleJob(rule, function(){
+  var rain = getWeather();
+  //include twilio here
+});
 
-//DISPLAY THE USER INFORMATION
+
+//gather the user's information
 app.get('/user', (req, res) => {
   //get all user's information
   const users = [];
@@ -93,22 +87,11 @@ app.get('/user', (req, res) => {
     //return the array
     res.send(users);
   });
-
-  // var sql = 'SELECT * FROM user;'
-  // db.query(sql, function(err, result) {
-  //   //display the result
-  //   res.send(result);
-  // });
 });
 
 
-
-//DISPLAY ALL THE PLANTS IN THE GARDEN
+//display all the plants in the user's garden
 app.get('/garden', function(req, res) {
-
-  // var plants="";
-  // var jsonObject;
-  // var sql = 'SELECT * FROM garden;'
 
   //clear the plants in the plantDetails array
   var plantDetails = [];
@@ -134,29 +117,10 @@ app.get('/garden', function(req, res) {
       });
     })
   })
-
-
-  // db.query(sql, function(err, result) {
-  //   //loop through the plants and find their information
-  //   for(i=0;i<result.length;i++){
-  //     console.log(result[i].plant);
-  //     plants += "id=" + result[i].plant;
-  //     if(i != result.length-1){
-  //       plants += " OR ";
-  //     }
-  //   }
-  //   //collect all the different ids
-  //   var sql2 = 'SELECT * FROM plants WHERE ' + plants + ';'
-  //   db.query(sql2, function(err, result){
-  //     console.log(result);
-  //     jsonObject = JSON.stringify(result);
-  //     res.send(jsonObject)
-  //   });
-  // });
 });
 
 
-//UPDATE THE USER'S LOCATION
+//update the user's location
 app.post("/updateLoc", urlencodedParser, function(req, res) {
 
   var docRef = db.collection('user').doc('43fLnN5E2VukfSpuapsX');
@@ -164,18 +128,6 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
     location: req.body.newloc
   });
   res.redirect("/");
-
-
-
-  //update the information in the DATABASE
-  // var sql = 'UPDATE user SET location=' + JSON.stringify(req.body.newloc) + 'WHERE id=1;'
-  // db.query(sql, function(err, result) {
-  //   //display the result
-  //   res.send("Location changed to " + req.body.newloc);
-  // });
-  // db.ref('location/' + 1).set({
-  //   location: JSON.stringify(req.body.newloc)
-  // });
 });
 
 
@@ -197,43 +149,47 @@ app.post('/addPlant', function(req, res) {
 });
 
 
-// app.post("/addPlant", urlencodedParser, function(req, res) {
-//   console.log("===================REEEEEEEQ: " + req.body);
-//   //update the information in the DATABASE
-//   // var sql = 'SELECT * FROM plants WHERE id=' + req.body.plant_id;
-//   // db.query(sql, function(err, result) {
-//   //   //display the result
-//   //   res.send("Location changed to " + req.body.newloc);
-//   // });
-//   res.send("yi");
-// });
-
-//DISPLAY THE PRECIPITATION FROM WORLDWEATHERONLINE API
+//gather and display the weather information from the API
 app.get('/weather', (req, res) => {
+    //send the weather to /weather extension
+    // console.log("total precipitation throughout the last week: " + sum);
+    getWeather().then(function(rain, error){
+      if(error){
+        throw error;
+      }
+      res.send(rain);
+    })
+});
 
-  //find the user's current location
-  db.collection('user').where('name', '==', 'Erin').get().then((querySnapshot) => {
-    querySnapshot.forEach(doc => {
-      //the user's location
-      var userLoc = doc.data().location;
 
-      //find the weather
-      var weather;
-      //get today's date & format it
-      var today = new Date();
-      var newmonth = today.getMonth() + 1;
+function getWeather(location){
+  return new Promise(function(resolve, reject){
+    //needed variables
+    var location;
+    var weather;
+    var sum;
 
-      //format today's date
-      var date = today.getFullYear() + '-' + newmonth + '-' + today.getDate();
-      //get last week's date & format it
-      today.setDate(today.getDate() - 7);
+    //get today's date
+    var today = new Date();
+    var newmonth = today.getMonth() + 1;
+    //format today's date
+    var date = today.getFullYear() + '-' + newmonth + '-' + today.getDate();
+    //get last week's date
+    today.setDate(today.getDate() - 7);
+    //format last week's date
+    var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
 
-      //format last week's date
-      var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
+
+    //first find the user's current location
+    db.collection('user').where('name', '==', 'Erin').get().then((querySnapshot) => {
+      querySnapshot.forEach(doc => {
+        //the user's location
+        location = doc.data().location;
+      })
 
       //get the weather data between the two dates
-      request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + userLoc + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
-
+      request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + location + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
+        sum = 0;
         if (err) { return console.log(err); }
 
         //get the multiple days' weather from api
@@ -242,7 +198,6 @@ app.get('/weather', (req, res) => {
         var days = weather.length;
 
         //loop through the precipitations for the week, add to a total sum
-        var sum = 0;
         for (i=0; i<days; i++){
           var hours = weather[i].hourly.length;
           //loop through each documented hour, add to sum
@@ -250,26 +205,13 @@ app.get('/weather', (req, res) => {
             sum += parseFloat(weather[i].hourly[hour].precipMM);
           }
         }
-
-        //send the weather to /weather extension
-        console.log("total precipitation throughout the last week: " + sum);
+        //format the sum as a string and resolve the promise
         sum = sum.toFixed(2)
-        res.send(sum.toString());
+        console.log("sum calculated: " + sum);
+        resolve(sum.toString());
       });
     })
   });
+}
 
-
-
-  // //new location:
-  // var userLoc;
-  // //find the user's current Location
-  // var sql = "SELECT location FROM user WHERE name = 'Erin';"
-  // db.query(sql, function (err, result) {
-  //   userLoc = JSON.stringify(result[0].location);
-    //for one day:
-    //'http://api.worldweatheronline.com/premium/v1/weather.ashx?key=7450f73ec6fe449385e171524201901&q=Havana&format=json&num_of_days=1'
-});
-
-module.exports = router;
 app.listen(port, () => console.log("Listening"));

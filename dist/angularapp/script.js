@@ -100,7 +100,6 @@ function startup(){
           //loop through the available plants
           for(i=0; i<data.length; i++){
             var option = document.createElement("OPTION");
-            // plants.push(data[i]);
             option.setAttribute("name", data[i].name);
             option.innerHTML = data[i].name;
             option.value = data[i].name;
@@ -109,11 +108,13 @@ function startup(){
           }
         }
       });
+      //set the counter to true, so it doesn't populate this dropdown list repetitively
       ddSet = true;
     }
   });
 };
 
+//add a new plant to the garden
 function addPlant(){
   var e = document.getElementById("list");
   //see which dropdown menu option was selected
@@ -127,12 +128,6 @@ function addPlant(){
       window.location.replace("/");
     }
   });
-  // axios.post("/addPlant", {
-  //   data: result
-  // })
-  // .then (function (response) {
-  //   console.log(response);
-  // })
 };
 
 //also close the window if the user clicks outside the box
