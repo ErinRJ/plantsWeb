@@ -12,9 +12,10 @@ var router = express.Router();
 const port = process.env.PORT || 3000;
 
 //set up Twilio for SMS notifications
-// const accountSid = 'ACe9f6714e786c1e39dfed4170a001e1fa';
-// const authToken = '7a4e61ffbd1df8649d5ebab6f921691f';
+// const accountSid = '';
+// const authToken = '';
 // const client = require('twilio')(accountSid, authToken);
+
 // //send SMS notification
 // client.messages
 //   .create({
@@ -41,6 +42,43 @@ var jsonParser = bodyParser.json();
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(express.urlencoded({extended:false}));
 
+
+//schedule reminders for the user to water if necessary
+var rule = new schedule.RecurrenceRule();
+rule.minute = 16;
+rule.hour = 11;
+var j = schedule.scheduleJob(rule, function(){
+  getWeather().then(function(rain, error){
+    if(error){
+      throw error;
+    }
+    else {
+        //include twilio here
+        console.log("it rained " + rain + " here");
+        if(rain > 10){
+          // client.messages
+          //   .create({
+          //      body: "It rained " + rain + "mm at your location this week, don't water your plants!",
+          //      from: '+12029316022',
+          //      to: '+12896858297'
+          //    })
+          //   .then(message => console.log(message.sid));
+        }
+        else {
+
+            // client.messages
+            //   .create({
+            //      body: 'It has only rained " + rain + "mm at your location this week, you better water your plants!',
+            //      from: '+12029316022',
+            //      to: '+12896858297'
+            //    })
+            //   .then(message => console.log(message.sid));
+        }
+    }
+  })
+});
+
+
 //display index.html as the homepage
 app.get('/', (req, res) => {
   var options = {
@@ -63,24 +101,6 @@ app.get('/plants', (req, res) => {
     res.send(plants);
   });
 });
-
-
-//schedule reminders for the user to water if necessary
-var rule = new schedule.RecurrenceRule();
-rule.minute = 16;
-rule.hour = 11;
-var j = schedule.scheduleJob(rule, function(){
-  getWeather().then(function(rain, error){
-    if(error){
-      throw error;
-    }
-    else {
-        //include twilio here
-        console.log("it rained " + rain + " here");
-    }
-  })
-});
-
 
 //gather the user's information
 app.get('/user', (req, res) => {
