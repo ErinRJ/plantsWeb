@@ -67,11 +67,18 @@ app.get('/plants', (req, res) => {
 
 //schedule reminders for the user to water if necessary
 var rule = new schedule.RecurrenceRule();
-rule.minute = 25;
-rule.hour = 0;
+rule.minute = 16;
+rule.hour = 11;
 var j = schedule.scheduleJob(rule, function(){
-  var rain = getWeather();
-  //include twilio here
+  getWeather().then(function(rain, error){
+    if(error){
+      throw error;
+    }
+    else {
+        //include twilio here
+        console.log("it rained " + rain + " here");
+    }
+  })
 });
 
 
@@ -207,7 +214,6 @@ function getWeather(location){
         }
         //format the sum as a string and resolve the promise
         sum = sum.toFixed(2)
-        console.log("sum calculated: " + sum);
         resolve(sum.toString());
       });
     })
