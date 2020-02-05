@@ -116,15 +116,17 @@ function startup(){
 
 function addPlant(){
   var e = document.getElementById("list");
+  //see which dropdown menu option was selected
 	var result = e.options[e.selectedIndex].value;
-  console.log(result);
+  //send this value to the server
   $.post("addPlant/",
   {
-    data: result
-  },
-function(data, status){
-  alert("data: "+ data);
-});
+    data: result,
+    success: (data, textStatus, jqXHR) => {
+      //redirect to the main page
+      window.location.replace("/");
+    }
+  });
   // axios.post("/addPlant", {
   //   data: result
   // })

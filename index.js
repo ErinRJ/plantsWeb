@@ -190,7 +190,7 @@ app.post('/addPlant', function(req, res) {
     plant:plant
   }).then(function(){
     console.log(plant + " added to the database");
-    res.redirect('/');
+    // res.send({redirect: '/'});
   }).catch(function(error){
     console.log("An error writing the document: " + error);
   });
