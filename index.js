@@ -180,13 +180,20 @@ app.post("/updateLoc", urlencodedParser, function(req, res) {
 
 
 //add a plant to the garden
-app.post('/addPlant', function(req, res, next) {
-  var name = req.body.data;
-  console.log(req.body.data);
-
+app.post('/addPlant', function(req, res) {
+  var plant = req.body.data;
+  console.log("received " + plant);
+  var data
   //add received plant to firestore
-
-  res.redirect('/');
+  db.collection('garden').doc().set({
+    user:"Erin",
+    plant:plant
+  }).then(function(){
+    console.log(plant + " added to the database");
+    res.redirect('/');
+  }).catch(function(error){
+    console.log("An error writing the document: " + error);
+  });
 });
 
 

@@ -2,6 +2,7 @@ var modal;
 var span = null;
 var area;
 var plants = [];
+var ddSet = false;
 
 function startup(){
   //display the modal box
@@ -87,26 +88,29 @@ function startup(){
   //add new plant to the DATABASE
   $("#add").click(function(){
     modal.style.display = "block";
-    //display all plants in the database
-    $.ajax({
-      url:'plants/',
-      type: 'GET',
-      dataType: 'json',
-      success: (data) => {
-        //the dropdown list:
-        var drop = document.getElementById('list');
-        //loop through the available plants
-        for(i=0; i<data.length; i++){
-          var option = document.createElement("OPTION");
-          // plants.push(data[i]);
-          option.setAttribute("name", data[i].name);
-          option.innerHTML = data[i].name;
-          option.value = data[i].name;
-          //add the plant to the dropdown list
-          drop.options.add(option);
+    //display all plants in the database, if not already set
+    if (!ddSet){
+      $.ajax({
+        url:'plants/',
+        type: 'GET',
+        dataType: 'json',
+        success: (data) => {
+          //the dropdown list:
+          var drop = document.getElementById('list');
+          //loop through the available plants
+          for(i=0; i<data.length; i++){
+            var option = document.createElement("OPTION");
+            // plants.push(data[i]);
+            option.setAttribute("name", data[i].name);
+            option.innerHTML = data[i].name;
+            option.value = data[i].name;
+            //add the plant to the dropdown list
+            drop.options.add(option);
+          }
         }
-      }
-    });
+      });
+      ddSet = true;
+    }
   });
 };
 
