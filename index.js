@@ -215,7 +215,7 @@ function getWeather(location){
       })
 
       //get the weather data between the two dates
-      request('http://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + location + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
+      request('https://api.worldweatheronline.com/premium/v1/past-weather.ashx?key=7450f73ec6fe449385e171524201901&q=' + location + '&format=json&date=' + prevDate + '&enddate=' + date, { json: true }, (err, result, body) => {
         sum = 0;
         if (err) { return console.log(err); }
 
