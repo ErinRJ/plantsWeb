@@ -201,11 +201,15 @@ function getWeather(location){
     var newmonth = today.getMonth() + 1;
     //format today's date
     var date = today.getFullYear() + '-' + newmonth + '-' + today.getDate();
-    //get last week's date
-    today.setDate(today.getDate() - 7);
-    //format last week's date
-    var prevDate = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
 
+    //get last week's date
+    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate()-7);
+    // var lastNewMonth = parseFloat(lastWeek.getMonth()) + 1;
+    var lastNewMonth = (lastWeek.getMonth() + 1);
+    //format last week's date
+    var prevDate = lastWeek.getFullYear() + '-' + lastNewMonth + '-' + lastWeek.getDate();
+    console.log("today is: " + date);
+    console.log("last week was: " + prevDate);
 
     //first find the user's current location
     db.collection('user').where('name', '==', 'Erin').get().then((querySnapshot) => {
